@@ -1,0 +1,104 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "biznavi5.fullname" . }}
+  labels:
+    app: {{ template "biznavi5.name" . }}
+    chart: {{ template "biznavi5.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "biznavi5.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "biznavi5.name" . }}
+        chart: {{ template "biznavi5.chart" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ template "biznavi5.fullname" . }}
+        image: {{ template "biznavi5.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        env:
+        - name: POSTGRESQL_HOST
+          value: {{ template "biznavi5.postgresql.fullname" . }}
+        - name: POSTGRESQL_PORT_NUMBER
+          value: "5432"
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "biznavi5.postgresql.fullname" . }}
+              key: postgres-password
+        - name: ODOO_EMAIL
+          value: {{ .Values.biznaviEmail | quote }}
+        - name: ODOO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "biznavi5.fullname" . }}
+              key: odoo-password
+        {{- if .Values.smtpHost }}
+        - name: SMTP_HOST
+          value: {{ .Values.smtpHost | quote }}
+        {{- end }}
+        {{- if .Values.smtpPort }}
+        - name: SMTP_PORT
+          value: {{ .Values.smtpPort | quote }}
+        {{- end }}
+        {{- if .Values.smtpUser }}
+        - name: SMTP_USER
+          value: {{ .Values.smtpUser | quote }}
+        {{- end }}
+        {{- if .Values.smtpPassword }}
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "biznavi5.fullname" . }}
+              key: smtp-password
+        {{- end }}
+        {{- if .Values.smtpProtocol }}
+        - name: SMTP_PROTOCOL
+          value: {{ .Values.smtpProtocol | quote }}
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: 8069
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}  
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+        volumeMounts:
+        - name: biznavi-data
+          mountPath: /opt/biznavi/data
+      volumes:
+      - name: biznavi-data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "biznavi5.fullname" . }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}

@@ -1,0 +1,17 @@
+apiVersion: v1
+appVersion: "1.0"
+description: A Biznavi chart for Kubernetes
+name: biznavi5
+engine: gotpl
+version: 5.0.1
+maintainers:
+- email: boyce.huang@cenoq.com
+  name: Boyce Huang
+keywords:
+- biznavi
+- erp
+- crm
+- www
+- http
+- web
+- ec

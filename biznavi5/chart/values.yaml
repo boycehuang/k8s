@@ -1,0 +1,60 @@
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: bitnami/odoo
+  tag: 11.0.20180815-debian-9
+  # repository: odoo
+  # tag: "11"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+biznaviUsername: admin
+biznaviEmail: admin
+biznaviPassword: admin
+
+postgresql:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
+service:
+  type: LoadBalancer
+  externalTrafficPolicy: ClusterIP
+  nodePort: 80
+  port: 80
+
+ingress:
+  enabled: false
+  hosts:
+  - name: biznavi.local
+    tls: false
+    tlsSecret: biznavi.local-tls
+    annotations: 
+  secrets:
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
+resources: 
+  requests:
+    cpu: 300m
+    memory: 512Mi
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 300
+  periodSeconds: 30
+  failureThreshold: 6
+  sucessThreshold: 1
+  
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 300
+  periodSeconds: 30
+  failureThreshold: 6
+  sucessThreshold: 1
