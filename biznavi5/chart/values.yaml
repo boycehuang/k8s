@@ -23,7 +23,7 @@ postgresql:
 service:
   type: LoadBalancer
   externalTrafficPolicy: ClusterIP
-  nodePort: 80
+  nodePort: 8069
   port: 80
 
 ingress:
@@ -46,14 +46,14 @@ resources:
     memory: 512Mi
 
 livenessProbe:
-  enabled: true
+  enabled: false
   initialDelaySeconds: 300
   periodSeconds: 30
   failureThreshold: 6
   sucessThreshold: 1
   
 readinessProbe:
-  enabled: true
+  enabled: false
   initialDelaySeconds: 300
   periodSeconds: 30
   failureThreshold: 6
