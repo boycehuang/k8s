@@ -18,9 +18,9 @@ imageTag: "9.6.2"
 
 ## Create a database user
 ## Default: postgres
-# postgresUser:
+postgresUser: biznavi
 ## Default: random 10 character string
-# postgresPassword:
+postgresPassword: biznavi
 
 ## Inject postgresPassword via a volume mount instead of environment variable
 usePasswordFile: false

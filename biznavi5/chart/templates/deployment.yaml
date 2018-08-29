@@ -27,6 +27,8 @@ spec:
         env:
         - name: POSTGRESQL_HOST
           value: {{ template "biznavi5.postgresql.fullname" . }}
+        - name: POSTGRES_USER
+          value: {{ default "biznavi" .Values.postgresUser | quote }}
         - name: POSTGRESQL_PORT_NUMBER
           value: "5432"
         - name: POSTGRESQL_PASSWORD
@@ -34,13 +36,15 @@ spec:
             secretKeyRef:
               name: {{ template "biznavi5.postgresql.fullname" . }}
               key: postgres-password
-        - name: ODOO_EMAIL
+        - name: BIZNAVI_USERNAME
+          value: {{ .Values.biznaviUsername | quote }}
+        - name: BIZNAVI_EMAIL
           value: {{ .Values.biznaviEmail | quote }}
-        - name: ODOO_PASSWORD
+        - name: BIZNAVI_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "biznavi5.fullname" . }}
-              key: odoo-password
+              key: biznavi-password
         {{- if .Values.smtpHost }}
         - name: SMTP_HOST
           value: {{ .Values.smtpHost | quote }}
@@ -65,8 +69,10 @@ spec:
           value: {{ .Values.smtpProtocol | quote }}
         {{- end }}
         ports:
-        - name: http
+        - name: web
           containerPort: 8069
+        - name: longpool
+          containerPort: 8071
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:
           httpGet:

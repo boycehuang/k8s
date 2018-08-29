@@ -1,0 +1,13 @@
+# /lib/systemd/system
+
+[Unit]
+Description=Odoo container
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a {{ODOO_DOCKER}}
+ExecStop=/usr/bin/docker stop -t 2 {{ODOO_DOCKER}}
+
+[Install]
+WantedBy=local.target

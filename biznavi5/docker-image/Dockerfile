@@ -70,26 +70,32 @@ RUN apt-get update \
     && apt-mark -qq manual '*' \
     && rm -Rf /var/lib/apt/lists/*
 
+###############################################
+# config, scripts, repos, autoinstall modules #
+###############################################
+COPY install-biznavi-saas.sh /
+COPY biznavi.conf $OPENERP_SERVER
+COPY odoo-backup.py /usr/local/bin/
+COPY reset-admin-passwords.py /
+COPY ./biznavi-supervisor.conf /opt/biznavi/
+COPY ./biznavi-init.conf /opt/biznavi/
+COPY ./biznavi.service /opt/biznavi/
+
 #####################################
 # odoo source, user, docker folders #
 #####################################
 RUN adduser --system --quiet --shell=/bin/bash --group biznavi && \
     chown -R biznavi:biznavi $BIZNAVI_SOURCE_DIR && \
     mkdir -p $BIZNAVI_DATA_DIR && chown biznavi:biznavi $BIZNAVI_DATA_DIR && \
-    chown biznavi $OPENERP_SERVER && \
+    chown biznavi:biznavi $OPENERP_SERVER && \
     mkdir -p $BACKUPS_DIR && chown biznavi:biznavi $BACKUPS_DIR && \
     mkdir -p $LOGS_DIR && chown biznavi:biznavi $LOGS_DIR
 
-###############################################
-# config, scripts, repos, autoinstall modules #
-###############################################
-COPY install-odoo-saas.sh /
-COPY biznavi.conf $OPENERP_SERVER
-COPY odoo-backup.py /usr/local/bin/
-
+RUN apt-get -qq update && \
+    bash -x install-biznavi-saas.sh
 # RUN apt-get -qq update && \
 #     chmod +x /usr/local/bin/odoo-backup.py && \
-#     chown odoo:odoo $OPENERP_SERVER && \
+#     chown biznavi:biznavi $OPENERP_SERVER && \
 #     CLONE_IT_PROJECTS_LLC=yes \
 #     CLONE_OCA=yes \
 #     INIT_ODOO_CONFIG=docker-container \
@@ -98,18 +104,17 @@ COPY odoo-backup.py /usr/local/bin/
 #     ADD_IGNORED_DATABASES="['session_store']" \
 #     bash -x install-odoo-saas.sh
 
-COPY reset-admin-passwords.py /
-
 ########################
 # docker configuration #
 ########################
 COPY ./entrypoint.sh /
+RUN chown biznavi:biznavi /entrypoint.sh && chmod +x /entrypoint.sh
+
 EXPOSE 8069 8072
-USER odoo
+USER biznavi
 VOLUME ["/opt/biznavi/data", \
        "/opt/biznavi/backups", \
-       "/opt/biznavi/logs", \
-       "/opt/addons/extra"]
+       "/opt/biznavi/logs"]
 # /opt/addons/extra is used for manually added addons.
 # Expected structure is:
 # /opt/addons/extra/REPO_OR_GROUP_NAME/MODULE/__openerp__.py

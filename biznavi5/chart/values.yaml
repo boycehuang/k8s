@@ -2,8 +2,8 @@ replicaCount: 1
 
 image:
   registry: docker.io
-  repository: bitnami/odoo
-  tag: 11.0.20180815-debian-9
+  repository: boycehuang/bz5
+  tag: "latest"
   # repository: odoo
   # tag: "11"
   pullPolicy: IfNotPresent
