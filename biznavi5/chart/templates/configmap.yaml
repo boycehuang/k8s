@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: {{ template "biznavi5.fullname" . }}
+  labels:
+    app: {{ template "biznavi5.name" . }}
+    chart: {{ template "biznavi5.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+data:
+  biznavi.conf: |
+    [options]
+    addons_path = /opt/biznavi/odoo/addons,/opt/biznavi/addons,/opt/biznavi/oca,/opt/biznavi/core,/opt/biznavi/cenoq
+    admin_passwd = admin
+    db_host = false
+    db_port = false
+    db_user = false
+    db_password = false
+    data_dir=/opt/biznavi/data-dir
